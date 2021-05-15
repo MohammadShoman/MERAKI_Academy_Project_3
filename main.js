@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const port = 5000;
-
+const { uuid } = require('uuidv4');
 app.use(express.json());
 //--------------------------------------------------------//
 const articles = [
@@ -32,45 +32,56 @@ const getAllArticles = (req, res) => {
 app.get("/articles", getAllArticles);
 
 //--------------------------------------------------------//
-const getArticlesByAuthor=(req,res)=>{
-    const author=req.query.author
-    const found=articles.filter((elem,i)=>{
-        return elem.author===author
-    })
-    if(found){
-        res.status(200)
-        res.json(found)
-    }else{
-        res.status(404)
-    res.json("not found")
-    }
-
-}
-app.get("/articles/search_1",getArticlesByAuthor)
+const getArticlesByAuthor = (req, res) => {
+  const author = req.query.author;
+  const found = articles.filter((elem, i) => {
+    return elem.author === author;
+  });
+  if (found) {
+    res.status(200);
+    res.json(found);
+  } else {
+    res.status(404);
+    res.json("not found");
+  }
+};
+app.get("/articles/search_1", getArticlesByAuthor);
 //--------------------------------------------------------//
 const getAnArticleById = (req, res) => {
     const id1 = req.params.id;
-    
+  
     const found = articles.find((elem, i) => {
       //return elem.id ===Number(id1)
-      return elem.id ==id1
+      return elem.id == id1;
     });
-    console.log(found)
+    console.log(found);
     if (found) {
-      
-      console.log("yes")
+      console.log("yes");
       res.status(200);
       res.json(found);
-    }else{
-        console.log("no")
-        res.status(404);
-        res.json("not-found")
+    } else {
+      console.log("no");
+      res.status(404);
+      res.json("not-found");
     }
-  
-    
   };
   app.get("/articles/:id", getAnArticleById);
 
+//--------------------------------------------------------//
+
+
+const createNewArticle = (req, res) => {
+    const newArticle = {
+      title: req.body.title,
+      description: req.body.description,
+      author: req.body.author,
+      id:uuid()
+    };
+    articles.push(newArticle);
+    res.status(201);
+    res.json(newArticle)
+  };
+  app.post("/articles",createNewArticle )
 //--------------------------------------------------------//
 app.listen(port, () => {
   console.log(`server run on ${port}`);
