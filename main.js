@@ -135,21 +135,27 @@ app.delete("/articles/:id", deleteArticleById);
 
 const deleteArticlesByAuthor = (req, res) => {
   const deletedArticle = req.body.author;
-  const object = {};
+  const object = {
+    success: true,
+    massage: `Success delete all the articles for the author => ${deletedArticle}`,
+  };
 
-  articles.map((elem, i) => {
-    if (elem.author == deletedArticle) {
-      articles.splice(i, 1);
-    } else {
-      res.json("not found");
-    }
+  let found = articles.filter((elem, i) => {
+    return elem.author === deletedArticle;
   });
-  object.success = true;
-  object.massage = `Success delete all the articles for the author => ${deletedArticle}`;
-  res.status(200);
-  res.json(object);
+  if (found.length > 0) {
+    res.status(200);
+    res.json(object);
+    articles.map((elem, i) => {
+      if (elem.author === deletedArticle) {
+        articles.splice(i, 1);
+      }
+    });
+  } else {
+    res.status(404);
+    res.json("not found");
+  }
 };
-
 app.delete("/articles", deleteArticlesByAuthor);
 
 app.listen(port, () => {
