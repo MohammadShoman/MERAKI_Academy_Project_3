@@ -108,38 +108,49 @@ const updateAnArticleById = (req, res) => {
 
 app.put("/articles/:id", updateAnArticleById);
 //--------------------------------------------------------//
-const deleteArticleById=(req,res)=>{
-    console.log("aaaaa");
-    const deletedArticle = req.params.id;
-    const object={}
-    let index;
-    let found = articles.find((elem, i) => {
-      index = i;
-      return elem.id == deletedArticle;
-    });
-  
-    if (found) {
-      articles.splice(index,1)
-object.success=true;
-object.message=`Success Delete article with id => ${deletedArticle}`
-      res.status(200);
-      res.json(object);
-    } else {
-      res.status(404);
-      res.json("not-found");
-    }
-  };
-app.delete("/articles/:id",deleteArticleById)
+const deleteArticleById = (req, res) => {
+  //console.log("aaaaa");
+  const deletedArticle = req.params.id;
+  const object = {};
+  let index;
+  let found = articles.find((elem, i) => {
+    index = i;
+    return elem.id == deletedArticle;
+  });
+
+  if (found) {
+    articles.splice(index, 1);
+    object.success = true;
+    object.message = `Success Delete article with id => ${deletedArticle}`;
+    res.status(200);
+    res.json(object);
+  } else {
+    res.status(404);
+    res.json("not-found");
+  }
+};
+app.delete("/articles/:id", deleteArticleById);
 
 //--------------------------------------------------------//
 
+const deleteArticlesByAuthor = (req, res) => {
+  const deletedArticle = req.body.author;
+  const object = {};
 
+  articles.map((elem, i) => {
+    if (elem.author == deletedArticle) {
+      articles.splice(i, 1);
+    } else {
+      res.json("not found");
+    }
+  });
+  object.success = true;
+  object.massage = `Success delete all the articles for the author => ${deletedArticle}`;
+  res.status(200);
+  res.json(object);
+};
 
-
-
-
-
-
+app.delete("/articles", deleteArticlesByAuthor);
 
 app.listen(port, () => {
   console.log(`server run on ${port}`);
