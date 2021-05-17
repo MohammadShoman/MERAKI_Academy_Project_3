@@ -13,9 +13,12 @@ password:{type:String},
 const articles=new mongoose.Schema({
     title:{type:String},
     description:{type:String},
-    auther:{type:mongoose.Schema.ObjectId,ref:"User"}
+    author:{type:mongoose.Schema.ObjectId,ref:"User"}
 })
 
 
 const User =mongoose.model("User",users)
 const Article=mongoose.model("Article",articles)
+
+module.exports.User=User;
+module.exports.Article=Article;

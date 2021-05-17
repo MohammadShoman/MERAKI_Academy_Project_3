@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
-const db=require("./db");
-const {User,Article} = require("./schema")
+const db = require("./db");
+const { User, Article } = require("./schema");
 const port = 5000;
 const { uuid } = require("uuidv4");
 app.use(express.json());
@@ -159,6 +159,23 @@ const deleteArticlesByAuthor = (req, res) => {
   }
 };
 app.delete("/articles", deleteArticlesByAuthor);
+//--------------------------------------------------------//
+const createNewAuthor = (req, res) => {
+  console.log("aaaa")
+  const { firstName, lastName, age, country, email, password } = req.body;
+  const user=new User({ firstName, lastName, age, country, email, password })
+  user.save()
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+};
+app.post("/users",createNewAuthor)
+//--------------------------------------------------------//
+
+//--------------------------------------------------------//
 
 app.listen(port, () => {
   console.log(`server run on ${port}`);
