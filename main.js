@@ -1,5 +1,7 @@
 const express = require("express");
 const app = express();
+const db=require("./db");
+const {User,Article} = require("./schema")
 const port = 5000;
 const { uuid } = require("uuidv4");
 app.use(express.json());
