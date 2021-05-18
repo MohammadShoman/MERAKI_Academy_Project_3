@@ -39,10 +39,8 @@ const getAllArticles = (req, res) => {
 app.get("/articles", getAllArticles);
 
 //--------------------------------------------------------//
-const getArticlesByAuthor =  (req, res) => {
+const getArticlesByAuthor = (req, res) => {
   const author = req.query.author;
-  
-  
 
   Article.find({ author: author })
     .then((result) => {
@@ -65,9 +63,20 @@ const getArticlesByAuthor =  (req, res) => {
 };
 app.get("/articles/search_1", getArticlesByAuthor);
 //--------------------------------------------------------//
-const getAnArticleById = (req, res) => {
+const getAnArticleById = async (req, res) => {
   const id1 = req.params.id;
 
+  Article.find({ author: id1 })
+    .populate("author", "firstName")
+    .exec()
+    .then((result) => {
+      res.status(200).json(result);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+
+  /*
   const found = articles.find((elem, i) => {
     //return elem.id ===Number(id1)
     return elem.id == id1;
@@ -81,7 +90,7 @@ const getAnArticleById = (req, res) => {
     console.log("no");
     res.status(404);
     res.json("not-found");
-  }
+  }*/
 };
 app.get("/articles/:id", getAnArticleById);
 
