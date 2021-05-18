@@ -72,16 +72,22 @@ app.get("/articles/:id", getAnArticleById);
 //--------------------------------------------------------//
 
 const createNewArticle = (req, res) => {
-  const newArticle = {
-    title: req.body.title,
-    description: req.body.description,
-    author: req.body.author,
-    id: uuid(),
+  const {
+    title,
+    description,
+    author
+}=req.body;
+const newArticle = new Article({ title, description, author });
+newArticle
+    .save()
+    .then((result) => {
+      res.status(201);
+      res.json(result);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
   };
-  articles.push(newArticle);
-  res.status(201);
-  res.json(newArticle);
-};
 app.post("/articles", createNewArticle);
 //--------------------------------------------------------//
 const updateAnArticleById = (req, res) => {
@@ -161,11 +167,12 @@ const deleteArticlesByAuthor = (req, res) => {
 app.delete("/articles", deleteArticlesByAuthor);
 //--------------------------------------------------------//
 const createNewAuthor = (req, res) => {
-  console.log("aaaa")
+  
   const { firstName, lastName, age, country, email, password } = req.body;
   const user=new User({ firstName, lastName, age, country, email, password })
   user.save()
     .then((result) => {
+      res.status(201);
       res.json(result);
     })
     .catch((err) => {
