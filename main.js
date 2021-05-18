@@ -28,8 +28,13 @@ const articles = [
 ];
 //--------------------------------------------------------//
 const getAllArticles = (req, res) => {
-  res.status(200);
-  res.json(articles);
+  Article.find({})
+    .then((result) => {
+      res.status(200).json(result);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
 };
 app.get("/articles", getAllArticles);
 
@@ -72,13 +77,9 @@ app.get("/articles/:id", getAnArticleById);
 //--------------------------------------------------------//
 
 const createNewArticle = (req, res) => {
-  const {
-    title,
-    description,
-    author
-}=req.body;
-const newArticle = new Article({ title, description, author });
-newArticle
+  const { title, description, author } = req.body;
+  const newArticle = new Article({ title, description, author });
+  newArticle
     .save()
     .then((result) => {
       res.status(201);
@@ -87,7 +88,7 @@ newArticle
     .catch((err) => {
       console.log(err);
     });
-  };
+};
 app.post("/articles", createNewArticle);
 //--------------------------------------------------------//
 const updateAnArticleById = (req, res) => {
@@ -167,10 +168,10 @@ const deleteArticlesByAuthor = (req, res) => {
 app.delete("/articles", deleteArticlesByAuthor);
 //--------------------------------------------------------//
 const createNewAuthor = (req, res) => {
-  
   const { firstName, lastName, age, country, email, password } = req.body;
-  const user=new User({ firstName, lastName, age, country, email, password })
-  user.save()
+  const user = new User({ firstName, lastName, age, country, email, password });
+  user
+    .save()
     .then((result) => {
       res.status(201);
       res.json(result);
@@ -179,7 +180,7 @@ const createNewAuthor = (req, res) => {
       res.json(err);
     });
 };
-app.post("/users",createNewAuthor)
+app.post("/users", createNewAuthor);
 //--------------------------------------------------------//
 
 //--------------------------------------------------------//
