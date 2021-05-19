@@ -50,6 +50,7 @@ const getArticlesByAuthor = (req, res) => {
       res.status(404).json(err);
     });
   /*
+  const author = req.query.author;
   const found = articles.filter((elem, i) => {
     return elem.author === author;
   });
@@ -77,6 +78,7 @@ const getAnArticleById = async (req, res) => {
     });
 
   /*
+  const id1 = req.params.id;
   const found = articles.find((elem, i) => {
     //return elem.id ===Number(id1)
     return elem.id == id1;
@@ -112,7 +114,17 @@ const createNewArticle = (req, res) => {
 app.post("/articles", createNewArticle);
 //--------------------------------------------------------//
 const updateAnArticleById = (req, res) => {
-  //console.log("aaaaa");
+  const id = req.params.id;
+  const {title,description}=req.body;
+  Article.findOneAndUpdate({ author: id },{title,description}, { new: true })
+    .then((result) => {
+      res.status(200).json(result);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+
+  /*console.log("aaaaa");
   const updatedArticle = req.params.id;
   let index;
   let found = articles.find((elem, i) => {
@@ -132,7 +144,7 @@ const updateAnArticleById = (req, res) => {
   } else {
     res.status(404);
     res.json("not-found");
-  }
+  }*/
 };
 
 app.put("/articles/:id", updateAnArticleById);
