@@ -115,8 +115,12 @@ app.post("/articles", createNewArticle);
 //--------------------------------------------------------//
 const updateAnArticleById = (req, res) => {
   const id = req.params.id;
-  const {title,description}=req.body;
-  Article.findOneAndUpdate({ author: id },{title,description}, { new: true })
+  const { title, description } = req.body;
+  Article.findOneAndUpdate(
+    { author: id },
+    { title, description },
+    { new: true }
+  )
     .then((result) => {
       res.status(200).json(result);
     })
@@ -150,7 +154,26 @@ const updateAnArticleById = (req, res) => {
 app.put("/articles/:id", updateAnArticleById);
 //--------------------------------------------------------//
 const deleteArticleById = (req, res) => {
-  //console.log("aaaaa");
+  const id = req.params.id;
+  Article.findOneAndDelete({ _id: id })
+    .then((result) => {
+      console.log(result);
+      if(result!==null){ res
+        .status(200)
+        .json({
+          success: true,
+          message: `Success Delete article with id => ${id}`,
+        });
+    }else{
+res.status(404).json("not-found")
+    }})
+      
+     
+    .catch((err) => {
+      res.status(404).json(err);
+    });
+
+  /*console.log("aaaaa");
   const deletedArticle = req.params.id;
   const object = {};
   let index;
@@ -168,7 +191,7 @@ const deleteArticleById = (req, res) => {
   } else {
     res.status(404);
     res.json("not-found");
-  }
+  }*/
 };
 app.delete("/articles/:id", deleteArticleById);
 
