@@ -250,7 +250,7 @@ const createNewAuthor = (req, res) => {
 };
 app.post("/users", createNewAuthor);
 //--------------------------------------------------------//
-const login = async(req, res) => {
+const login = async (req, res) => {
   const { email, password } = req.body;
   let exist;
   await User.find({ email, password })
@@ -269,6 +269,29 @@ const login = async(req, res) => {
 app.post("/login", login);
 //--------------------------------------------------------//
 
+const createNewComment = (req, res) => {
+  const id = req.params.id;
+  const { comment, commenter } = req.body;
+  const co = new Comment({ comment, commenter });
+  let commentId;
+
+  co.save()
+    .then((result) => {
+      commentId = result._id;
+
+      Article.updateOne({ _id: id }, { $push: { comments: commentId } }).then(
+        () => {
+          res.json(result);
+        }
+      );
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+};
+
+app.post("/articles/:id/comments", createNewComment);
+//--------------------------------------------------------//
 app.listen(port, () => {
   console.log(`server run on ${port}`);
 });

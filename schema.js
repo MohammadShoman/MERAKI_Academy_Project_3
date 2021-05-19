@@ -24,7 +24,8 @@ const comments=new mongoose.Schema({
 
 const User =mongoose.model("User",users)
 const Article=mongoose.model("Article",articles)
-const Comments=mongoose.model("Comment",comments)
+const Comment=mongoose.model("Comment",comments)
 
 module.exports.User=User;
 module.exports.Article=Article;
+module.exports.Comment=Comment;
