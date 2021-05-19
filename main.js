@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const db = require("./db");
-const { User, Article,Comment } = require("./schema");
+const { User, Article, Comment } = require("./schema");
 const port = 5000;
 const { uuid } = require("uuidv4");
 app.use(express.json());
@@ -200,10 +200,13 @@ const deleteArticlesByAuthor = (req, res) => {
   const author = req.body.author;
   Article.deleteMany({ author: author })
     .then((result) => {
-      console.log(result)
-      if(result!==null){
-      res.status(200).json(result);
-    }else{res.status(404).json("not-found")}})
+      console.log(result);
+      if (result !== null) {
+        res.status(200).json(result);
+      } else {
+        res.status(404).json("not-found");
+      }
+    })
     .catch((err) => {
       res.status(404).json(err);
     });
@@ -247,7 +250,23 @@ const createNewAuthor = (req, res) => {
 };
 app.post("/users", createNewAuthor);
 //--------------------------------------------------------//
-
+const login = async(req, res) => {
+  const { email, password } = req.body;
+  let exist;
+  await User.find({ email, password })
+    .then((result) => {
+      exist = result;
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+  if (exist.length > 0) {
+    res.status(200).json("Valid login credentials");
+  } else {
+    res.status(401).json("Invalid login credentials");
+  }
+};
+app.post("/login", login);
 //--------------------------------------------------------//
 
 app.listen(port, () => {
