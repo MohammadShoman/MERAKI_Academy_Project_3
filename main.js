@@ -158,17 +158,16 @@ const deleteArticleById = (req, res) => {
   Article.findOneAndDelete({ _id: id })
     .then((result) => {
       console.log(result);
-      if(result!==null){ res
-        .status(200)
-        .json({
+      if (result !== null) {
+        res.status(200).json({
           success: true,
           message: `Success Delete article with id => ${id}`,
         });
-    }else{
-res.status(404).json("not-found")
-    }})
-      
-     
+      } else {
+        res.status(404).json("not-found");
+      }
+    })
+
     .catch((err) => {
       res.status(404).json(err);
     });
@@ -198,6 +197,17 @@ app.delete("/articles/:id", deleteArticleById);
 //--------------------------------------------------------//
 
 const deleteArticlesByAuthor = (req, res) => {
+  const author = req.body.author;
+  Article.deleteMany({ author: author })
+    .then((result) => {
+      console.log(result)
+      if(result!==null){
+      res.status(200).json(result);
+    }else{res.status(404).json("not-found")}})
+    .catch((err) => {
+      res.status(404).json(err);
+    });
+  /*
   const deletedArticle = req.body.author;
   const object = {
     success: true,
@@ -218,7 +228,7 @@ const deleteArticlesByAuthor = (req, res) => {
   } else {
     res.status(404);
     res.json("not found");
-  }
+  }*/
 };
 app.delete("/articles", deleteArticlesByAuthor);
 //--------------------------------------------------------//
