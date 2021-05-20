@@ -1,6 +1,9 @@
 const express = require("express");
 const app = express();
 const db = require("./db");
+const bcrypt = require("bcrypt");
+require("dotenv").config();
+const jwt = require("jsonwebtoken");
 const { User, Article, Comment } = require("./schema");
 const port = 5000;
 const { uuid } = require("uuidv4");
@@ -291,6 +294,12 @@ const createNewComment = (req, res) => {
 };
 
 app.post("/articles/:id/comments", createNewComment);
+//--------------------------------------------------------//
+
+
+
+
+
 //--------------------------------------------------------//
 app.listen(port, () => {
   console.log(`server run on ${port}`);
