@@ -254,7 +254,36 @@ const createNewAuthor = (req, res) => {
 app.post("/users", createNewAuthor);
 //--------------------------------------------------------//
 const login = async (req, res) => {
-  const { email, password } = req.body;
+  const { email } = req.body;
+  User.find({ email })
+    .then((result) => {
+      if (result.length>0) {
+        console.log(result);
+        bcrypt.compare(req.body.password, result[0].password, (err, result_1) => {
+          console.log(result_1)
+          if (result_1) {
+            console.log("Aaaa")
+            const payload = { userId: result._id, country: result.country };
+            const options = { expiresIn: "60m" };
+            const secret = process.env.SECRET;
+            console.log(secret)
+            const token = jwt.sign(payload, secret, options);
+            res.json(token);
+          } else {
+            res.json({
+              message: "The password you’ve entered is incorrect",
+              status: 403,
+            });
+          }
+        });
+      } else {
+        res.json({ message: "The email doesn't exist", status: 404 });
+      }
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+  /*const { email, password } = req.body;
   let exist;
   await User.find({ email, password })
     .then((result) => {
@@ -267,7 +296,7 @@ const login = async (req, res) => {
     res.status(200).json("Valid login credentials");
   } else {
     res.status(401).json("Invalid login credentials");
-  }
+  }*/
 };
 app.post("/login", login);
 //--------------------------------------------------------//
@@ -295,10 +324,6 @@ const createNewComment = (req, res) => {
 
 app.post("/articles/:id/comments", createNewComment);
 //--------------------------------------------------------//
-
-
-
-
 
 //--------------------------------------------------------//
 app.listen(port, () => {
