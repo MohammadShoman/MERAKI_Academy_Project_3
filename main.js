@@ -4,8 +4,9 @@ const db = require("./db");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
-const { User, Article, Comment } = require("./schema");
+const { User, Article, Comment, Role } = require("./schema");
 const port = 5000;
+const secret = process.env.SECRET;
 const { uuid } = require("uuidv4");
 app.use(express.json());
 //--------------------------------------------------------//
@@ -257,25 +258,33 @@ const login = async (req, res) => {
   const { email } = req.body;
   User.find({ email })
     .then((result) => {
-      if (result.length>0) {
+      if (result.length > 0) {
         console.log(result);
-        bcrypt.compare(req.body.password, result[0].password, (err, result_1) => {
-          console.log(result_1)
-          if (result_1) {
-            console.log("Aaaa")
-            const payload = { userId: result._id, country: result.country };
-            const options = { expiresIn: "60m" };
-            const secret = process.env.SECRET;
-            console.log(secret)
-            const token = jwt.sign(payload, secret, options);
-            res.json(token);
-          } else {
-            res.json({
-              message: "The password you’ve entered is incorrect",
-              status: 403,
-            });
+        bcrypt.compare(
+          req.body.password,
+          result[0].password,
+          (err, result_1) => {
+            console.log(result_1);
+            if (result_1) {
+              console.log("Aaaa");
+              const payload = {
+                userId: result._id,
+                country: result.country,
+                permissions: ["MANAGE_USERS", "CREATE_COMMENTS"],
+              };
+              const options = { expiresIn: "60m" };
+
+              //console.log(secret)
+              const token = jwt.sign(payload, secret, options);
+              res.json(token);
+            } else {
+              res.json({
+                message: "The password you’ve entered is incorrect",
+                status: 403,
+              });
+            }
           }
-        });
+        );
       } else {
         res.json({ message: "The email doesn't exist", status: 404 });
       }
@@ -300,32 +309,72 @@ const login = async (req, res) => {
 };
 app.post("/login", login);
 //--------------------------------------------------------//
+const authentication = (req, res, next) => {
+  if (!req.headers.authorization) {
+    res.status(404);
+    res.json("no token");
+  }
+  console.log(req.headers.authorization);
+  const token = req.headers.authorization.split(" ")[1];
+  console.log();
+  try {
+    const ver = jwt.verify(token, SECRET);
+    if (ver) {
+      req.token = ver;
+      next();
+    }
+  } catch (err) {
+    res.status(403);
+    return res.json({
+      message: "the token is invalid or expired",
+      status: 403,
+    });
+  }
+};
+//--------------------------------------------------------//
+
+const authorization = (str) => {
+  return (req, res, next) => {
+    const permissions = req.token.permissions;
+    console.log(permissions);
+    const forbidden = {
+      message: "forbidden ",
+      status: 403,
+    };
+    if (permissions.includes(str)) {
+      return next();
+    }
+    res.status(403);
+    res.json(forbidden);
+  };
+};
+//--------------------------------------------------------//
 
 const createNewComment = (req, res) => {
-  const id = req.params.id;
   const { comment, commenter } = req.body;
-  const co = new Comment({ comment, commenter });
-  let commentId;
-
-  co.save()
+  const newComment = new Comment({ comment, commenter });
+  newComment
+    .save()
     .then((result) => {
-      commentId = result._id;
-
-      Article.updateOne({ _id: id }, { $push: { comments: commentId } }).then(
-        () => {
-          res.json(result);
-        }
-      );
+      res.json(result);
+      res.status(201);
+      Article.updateOne(
+        { _id: req.params.id },
+        { $push: { comments: result._id } }
+      ).exec();
     })
     .catch((err) => {
-      res.json(err);
+      console.log(err);
     });
 };
-
-app.post("/articles/:id/comments", createNewComment);
+app.post(
+  "/articles/:id/comments",
+  createNewComment,
+  authentication,
+  authorization(`CREATE_COMMENTS`)
+);
 //--------------------------------------------------------//
 
-//--------------------------------------------------------//
 app.listen(port, () => {
   console.log(`server run on ${port}`);
 });
